@@ -2,7 +2,7 @@
 对AFNetworking网络封装,便于网络顺序执行、并序执行
 #使用示例
 
-##1、单个网络请求
+## 1、单个网络请求
 ```
     //创建网络请求
     SQCombineRequestItem *item = [[SQCombineRequestItem alloc] init];
@@ -57,7 +57,7 @@
 2021-08-31 15:52:02.771277+0800 SQCombineRequestDemo[43980:613200] dealloc SQCombineRequestItem
 ```
 
-##2、串行网络请求
+## 2、串行网络请求
 ```
     //创建串行网络
     self.chainRequest = [[SQCombineChainRequest alloc] init];
@@ -124,7 +124,7 @@
 }
 2021-08-31 16:09:23.352690+0800 SQCombineRequestDemo[48115:635881] chainRequest success
 ```
-##3、并行网络请求
+## 3、并行网络请求
 ```
     //创建并行网络
     self.batchRequest = [[SQCombineBatchRequest alloc] init];
@@ -181,13 +181,78 @@
 2021-08-31 16:40:11.905174+0800 SQCombineRequestDemo[55196:670369] success    1
 2021-08-31 16:40:11.905373+0800 SQCombineRequestDemo[55196:670369] batchRequest success
 ```
-##4、组合使用
+## 4、组合使用
 
 ![image.png](https://upload-images.jianshu.io/upload_images/3150123-f24a0d8fe563b0e0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
 
 图中b c d作为item添加到上面灰色串行网络中，e f g作为item添加到下面灰色串行网络中， 两个灰色又作为item加入到黄色的并行网络中。绿色跟黄色又作为item加入到蓝色串行网络中。
+
+```
+- (SQCombineRequestItem *)createItemWithKey:(NSString *)key {
+    //创建网络请求
+    SQCombineRequestItem *item = [[SQCombineRequestItem alloc] init];
+    //将要开始
+    item.requestWillStart = ^(SQCombineRequestItem *requestItem) {
+        NSLog(@"will start    %@", key);
+    };
+    //获取网络请求参数
+    item.requestParam = ^NSDictionary *(NSDictionary *data){
+        NSLog(@"getParam   %@  %@",key, data);
+        return @{@"sid": @"28654780"};
+    };
+    //网络的url
+    item.url = @"https://api.apiopen.top/getSingleJoke";
+    //网络请求方式
+    item.method = SQCRNetMethodGet;
+    //成功回调
+    item.successBlock = ^(id data, SQCombineRequestResult *result) {
+        result.dataToNextRequest = @{key: key};
+        NSLog(@"success   %@", key);
+    };
+    //失败回调
+    item.failBlock = ^(id error) {
+        NSLog(@"fail    %@", key);
+    };
+    return item;
+}
+
+//组合使用代码
+- (void)testCombineRequest {
+    SQCombineRequestItem *a = [self createItemWithKey:@"a"];
+    
+    SQCombineChainRequest *bcd = [[SQCombineChainRequest alloc] init];
+    for (NSString *key in @[@"b", @"c", @"d"]) {
+        [bcd addRequest:[self createItemWithKey:key]];
+    }
+    bcd.successBlock = ^(id data, SQCombineRequestResult *result) {
+        NSLog(@"bcd success");
+    };
+    
+    SQCombineChainRequest *efg = [[SQCombineChainRequest alloc] init];
+    for (NSString *key in @[@"e", @"f", @"g"]) {
+        [efg addRequest:[self createItemWithKey:key]];
+    }
+    efg.successBlock = ^(id data, SQCombineRequestResult *result) {
+        NSLog(@"efg success");
+    };
+    
+    SQCombineBatchRequest *batch = [[SQCombineBatchRequest alloc] init];
+    [batch addRequests:@[bcd, efg]];
+    
+    self.chainRequest = [[SQCombineChainRequest alloc] init];
+    [self.chainRequest addRequest:a];
+    [self.chainRequest addRequest:batch];
+    self.chainRequest.successBlock = ^(id data, SQCombineRequestResult *result) {
+        NSLog(@"self.chainRequest success");
+    };
+    
+    [self.chainRequest start];
+    
+    
+}
+```
 
 结果
 ```
