@@ -34,10 +34,4 @@ TODO: Add long description of the pod here.
   }
  s.source_files = 'SQCombineRequest/**/**'
  s.dependency 'AFNetworking'
-
-# s.prefix_header_contents =
-# '#define LOG_LEVEL_DEF ddLogLevel',
-# '#import "TLLogDefine.h"',
-# 'static DDLogLevel ddLogLevel = DDLogLevelVerbose;',
-# '#define TL_LOG_CONTEXT TLLogModulesMiniprogramModule'
 end
