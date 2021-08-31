@@ -1,5 +1,5 @@
 #
-# Be sure to run `pod lib lint TLHeraModule.podspec' to ensure this is a
+# Be sure to run `pod lib lint SQCombineRequest.podspec' to ensure this is a
 # valid spec before submitting.
 #
 # Any lines starting with a # are optional, but their use is encouraged
@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'SQCombineRequest'
   s.version          = '1.0.0'
-  s.summary          = 'A short description of TLHeraModule.'
+  s.summary          = '网络封装库'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -21,10 +21,10 @@ Pod::Spec.new do |s|
 TODO: Add long description of the pod here.
                        DESC
 
-  s.homepage         = 'https://github.com/sunqiang/TLHeraModule'
+  s.homepage         = 'https://github.com/ytsunqiang/SQCombineRequest'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.author           = { 'sunqiang' => 'sunqiang@hxrainbow.com' }
-  s.source           = { :git => 'https://github.com/sunqiang/TLHeraModule.git', :tag => s.version.to_s }
+  s.author           = { 'sunqiang' => 'ytsunqiang0319@163.com' }
+  s.source           = { :git => 'https://github.com/ytsunqiang/SQCombineRequest.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '10.0'
