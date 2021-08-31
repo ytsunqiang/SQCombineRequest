@@ -1,0 +1,49 @@
+PODS:
+  - AFNetworking (4.0.1):
+    - AFNetworking/NSURLSession (= 4.0.1)
+    - AFNetworking/Reachability (= 4.0.1)
+    - AFNetworking/Security (= 4.0.1)
+    - AFNetworking/Serialization (= 4.0.1)
+    - AFNetworking/UIKit (= 4.0.1)
+  - AFNetworking/NSURLSession (4.0.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (4.0.1)
+  - AFNetworking/Security (4.0.1)
+  - AFNetworking/Serialization (4.0.1)
+  - AFNetworking/UIKit (4.0.1):
+    - AFNetworking/NSURLSession
+  - Growing (2.9.3)
+  - GrowingAutoTrackKit (2.9.3):
+    - GrowingCoreKit (= 2.9.3)
+  - GrowingCoreKit (2.9.3):
+    - Growing (= 2.9.3)
+  - SQCombineRequest (1.0.0):
+    - AFNetworking
+
+DEPENDENCIES:
+  - GrowingAutoTrackKit
+  - SQCombineRequest (from `./`)
+
+SPEC REPOS:
+  trunk:
+    - AFNetworking
+    - Growing
+    - GrowingAutoTrackKit
+    - GrowingCoreKit
+
+EXTERNAL SOURCES:
+  SQCombineRequest:
+    :path: "./"
+
+SPEC CHECKSUMS:
+  AFNetworking: 7864c38297c79aaca1500c33288e429c3451fdce
+  Growing: ab1b6f81b0b07c1ebf3ccd12bd15e9a96aaaea78
+  GrowingAutoTrackKit: 216db142a97700375dbcdc61c4393fad4111b1a1
+  GrowingCoreKit: 4063fc628c7fb3e7226a62237b8ef1362d3a371c
+  SQCombineRequest: adc3226b8339e362d18e2c315cfddc077f7fb386
+
+PODFILE CHECKSUM: b61f8c8329a90a9710cc0a4353052fbcbdfb1dde
+
+COCOAPODS: 1.10.1
