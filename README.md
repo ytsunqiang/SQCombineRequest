@@ -14,10 +14,10 @@
     item.requestParam = ^NSDictionary *(NSDictionary *data){
          //data为前面的网络请求成功之后传递过来的数据
         NSLog(@"getParam   %@  %@",key, data);
-        return @{@"sid": @"28654780"};
+        return @{@"q": @"你好"};
     };
-    //网络的url
-    item.url = @"https://api.apiopen.top/getSingleJoke";
+    //网络的url  （接口有时不可用）
+    item.url = @"https://dict.youdao.com/jsonapi";
     //网络请求方式
     item.method = SQCRNetMethodGet;
     //成功回调
