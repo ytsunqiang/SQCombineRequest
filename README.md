@@ -226,5 +226,5 @@
 
 pod导入方式
 ```
-pod 'SQCombineRequest', :git => "https://github.com/ytsunqiang/SQCombineRequest"
+pod 'SQCombineRequest'
 ```
