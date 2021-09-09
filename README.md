@@ -1,18 +1,19 @@
 # SQCombineRequest
 对AFNetworking网络封装,便于网络顺序执行、并序执行
-#使用示例
-
-## 1、单个网络请求
+# 使用示例
 ```
+//创建单个网络请求
+- (SQCombineRequestItem *)createItemWithKey:(NSString *)key {
     //创建网络请求
     SQCombineRequestItem *item = [[SQCombineRequestItem alloc] init];
     //将要开始
     item.requestWillStart = ^(SQCombineRequestItem *requestItem) {
-        NSLog(@"will start    ");
+        NSLog(@"will start    %@", key);
     };
     //获取网络请求参数
     item.requestParam = ^NSDictionary *(NSDictionary *data){
-        NSLog(@"getParam     %@", data);
+         //data为前面的网络请求成功之后传递过来的数据
+        NSLog(@"getParam   %@  %@",key, data);
         return @{@"sid": @"28654780"};
     };
     //网络的url
@@ -21,45 +22,38 @@
     item.method = SQCRNetMethodGet;
     //成功回调
     item.successBlock = ^(id data, SQCombineRequestResult *result) {
-        NSLog(@"success    %@", data);
-        result.dataToNextRequest = @{@"ddd": @"dddd"};
+        //传递给下一个网络请求的数据
+        result.dataToNextRequest = @{key: key};
+        //如果校验数据不符合要求，要停止网络请求,执行下面即可
+        //result.stop = YES;
+        NSLog(@"success   %@", key);
     };
     //失败回调
     item.failBlock = ^(id error) {
-        NSLog(@"fail    ");
+        NSLog(@"fail    %@", key);
     };
+    return item;
+}
+
+```
+## 1、单个网络请求
+```
+    //创建网络请求
+    SQCombineRequestItem *item = [self createItemWithKey:@"single"];
     //开始请求
     [item start];
 ```
 结果
 ```
-2021-08-31 15:52:02.170799+0800 SQCombineRequestDemo[43980:613200] will start
-2021-08-31 15:52:02.170973+0800 SQCombineRequestDemo[43980:613200] getParam     (null)
-2021-08-31 15:52:02.525585+0800 2021-08-31 15:52:02.770994+0800 SQCombineRequestDemo[43980:613200] success    {
-    code = 200;
-    message = "\U6210\U529f!";
-    result =     {
-        comment = 9;
-        down = 7;
-        forward = 3;
-        header = "http://wimg.spriteapp.cn/profile/large/2018/08/14/5b721ea4242da_mini.jpg";
-        name = "\U8d75\U83d3\U83d3";
-        passtime = "2018-09-30 02:55:02";
-        sid = 28654780;
-        text = "\U8fd9\U96be\U9053\U662f\U4f20\U8bf4\U4e2d\U7684\U8138\U5239\Uff1f";
-        thumbnail = "http://wimg.spriteapp.cn/picture/2018/0927/5bacc729ae94b__b.jpg";
-        type = video;
-        uid = 12745266;
-        up = 99;
-        video = "http://wvideo.spriteapp.cn/video/2018/0927/5bacc729be874_wpd.mp4";
-    };
-}
-2021-08-31 15:52:02.771277+0800 SQCombineRequestDemo[43980:613200] dealloc SQCombineRequestItem
+2021-08-31 19:33:18.736320+0800 SQCombineRequestDemo[20020:93993] will start    single
+2021-08-31 19:33:18.736533+0800 SQCombineRequestDemo[20020:93993] getParam   single  (null)
+2021-08-31 19:33:19.122764+0800 SQCombineRequestDemo[20020:93993] success   single
+2021-08-31 19:33:19.123052+0800 SQCombineRequestDemo[20020:93993] dealloc SQCombineRequestItem
 ```
 
 ## 2、串行网络请求
 ```
-    //创建串行网络
+        //创建串行网络
     self.chainRequest = [[SQCombineChainRequest alloc] init];
     //串行网络所有请求执行成功
     self.chainRequest.successBlock = ^(id data, SQCombineRequestResult *result) {
@@ -72,57 +66,28 @@
     
     for (int i = 0; i < 3; i++) {
         //创建网络请求
-        SQCombineRequestItem *item = [[SQCombineRequestItem alloc] init];
-        //将要开始
-        item.requestWillStart = ^(SQCombineRequestItem *requestItem) {
-            NSLog(@"%@", [NSString stringWithFormat:@"will start    %d", i]);
-        };
-        //获取网络请求参数
-        item.requestParam = ^NSDictionary *(NSDictionary *data){
-            NSLog(@"getParam  %d --   %@",i, data);
-            return @{@"sid": @"28654780"};
-        };
-        //网络的url
-        item.url = @"https://api.apiopen.top/getSingleJoke";
-        //网络请求方式
-        item.method = SQCRNetMethodGet;
-        //成功回调
-        item.successBlock = ^(id data, SQCombineRequestResult *result) {
-            NSLog(@"success    %@", data);
-            NSString *index = [NSString stringWithFormat:@"%d", i];
-            result.dataToNextRequest = @{index: index};
-        };
-        //失败回调
-        item.failBlock = ^(id error) {
-            NSLog(@"fail    ");
-        };
+        SQCombineRequestItem *item = [self createItemWithKey:[NSString stringWithFormat:@"%d", i]];
         [self.chainRequest addRequest:item];
     }
     [self.chainRequest start];
 ```
 结果
 ```
-2021-08-31 16:09:22.360619+0800 SQCombineRequestDemo[48115:635881] will start    0
-2021-08-31 16:09:22.360790+0800 SQCombineRequestDemo[48115:635881] getParam  0 --   (null)
-2021-08-31 16:09:22.989267+0800 SQCombineRequestDemo[48115:635881] success    {
-    code = 200;
-}
-2021-08-31 16:09:22.989466+0800 SQCombineRequestDemo[48115:635881] will start    1
-2021-08-31 16:09:22.989624+0800 SQCombineRequestDemo[48115:635881] getParam  1 --   {
+2021-08-31 19:34:44.030914+0800 SQCombineRequestDemo[20020:93993] will start    0
+2021-08-31 19:34:44.031103+0800 SQCombineRequestDemo[20020:93993] getParam   0  (null)
+2021-08-31 19:34:44.310259+0800 SQCombineRequestDemo[20020:93993] success   0
+2021-08-31 19:34:44.310585+0800 SQCombineRequestDemo[20020:93993] will start    1
+2021-08-31 19:34:44.310916+0800 SQCombineRequestDemo[20020:93993] getParam   1  {
     0 = 0;
 }
-2021-08-31 16:09:23.160840+0800 SQCombineRequestDemo[48115:635881] success    {
-    code = 200;
-}
-2021-08-31 16:09:23.161338+0800 SQCombineRequestDemo[48115:635881] will start    2
-2021-08-31 16:09:23.161816+0800 SQCombineRequestDemo[48115:635881] getParam  2 --   {
+2021-08-31 19:34:44.617736+0800 SQCombineRequestDemo[20020:93993] success   1
+2021-08-31 19:34:44.618036+0800 SQCombineRequestDemo[20020:93993] will start    2
+2021-08-31 19:34:44.618327+0800 SQCombineRequestDemo[20020:93993] getParam   2  {
     0 = 0;
     1 = 1;
 }
-2021-08-31 16:09:23.352502+0800 SQCombineRequestDemo[48115:635881] success    {
-    code = 200;
-}
-2021-08-31 16:09:23.352690+0800 SQCombineRequestDemo[48115:635881] chainRequest success
+2021-08-31 19:34:44.874603+0800 SQCombineRequestDemo[20020:93993] success   2
+2021-08-31 19:34:44.874899+0800 SQCombineRequestDemo[20020:93993] chainRequest success
 ```
 ## 3、并行网络请求
 ```
@@ -140,27 +105,9 @@
     NSMutableArray *items = [NSMutableArray arrayWithCapacity:3];
     for (int i = 0; i < 3; i++) {
         //创建网络请求
-        SQCombineRequestItem *item = [[SQCombineRequestItem alloc] init];
-        //将要开始
-        item.requestWillStart = ^(SQCombineRequestItem *requestItem) {
-            NSLog(@"will start    %d", i);
-        };
-        //获取网络请求参数
-        item.requestParam = ^NSDictionary *(NSDictionary *data){
-            NSLog(@"getParam  %d --   %@",i, data);
-            return @{@"sid": @"28654780"};
-        };
-        //网络的url
-        item.url = @"https://api.apiopen.top/getSingleJoke";
-        //网络请求方式
-        item.method = SQCRNetMethodGet;
-        //成功回调
+        SQCombineRequestItem *item = [self createItemWithKey:[NSString stringWithFormat:@"%d",i]];
         item.successBlock = ^(id data, SQCombineRequestResult *result) {
-            NSLog(@"success    %d", i);
-        };
-        //失败回调
-        item.failBlock = ^(id error) {
-            NSLog(@"fail    %d",i);
+            NSLog(@"success %d",i);
         };
         [items addObject:item];
     }
@@ -170,88 +117,64 @@
 
 结果
 ```
-2021-08-31 16:40:11.210396+0800 SQCombineRequestDemo[55196:670369] will start    0
-2021-08-31 16:40:11.210590+0800 SQCombineRequestDemo[55196:670369] getParam  0 --   (null)
-2021-08-31 16:40:11.214721+0800 SQCombineRequestDemo[55196:670369] will start    1
-2021-08-31 16:40:11.214999+0800 SQCombineRequestDemo[55196:670369] getParam  1 --   (null)
-2021-08-31 16:40:11.217880+0800 SQCombineRequestDemo[55196:670369] will start    2
-2021-08-31 16:40:11.218077+0800 SQCombineRequestDemo[55196:670369] getParam  2 --   (null)
-2021-08-31 16:40:11.867361+0800 SQCombineRequestDemo[55196:670369] success    2
-2021-08-31 16:40:11.904609+0800 SQCombineRequestDemo[55196:670369] success    0
-2021-08-31 16:40:11.905174+0800 SQCombineRequestDemo[55196:670369] success    1
-2021-08-31 16:40:11.905373+0800 SQCombineRequestDemo[55196:670369] batchRequest success
+2021-08-31 19:36:08.543819+0800 SQCombineRequestDemo[20020:93993] will start    0
+2021-08-31 19:36:08.544094+0800 SQCombineRequestDemo[20020:93993] getParam   0  (null)
+2021-08-31 19:36:08.545526+0800 SQCombineRequestDemo[20020:93993] will start    1
+2021-08-31 19:36:08.545700+0800 SQCombineRequestDemo[20020:93993] getParam   1  (null)
+2021-08-31 19:36:08.547276+0800 SQCombineRequestDemo[20020:93993] will start    2
+2021-08-31 19:36:08.547774+0800 SQCombineRequestDemo[20020:93993] getParam   2  (null)
+2021-08-31 19:36:09.025486+0800 SQCombineRequestDemo[20020:93993] success 2
+2021-08-31 19:36:09.027692+0800 SQCombineRequestDemo[20020:93993] success 0
+2021-08-31 19:36:09.061978+0800 SQCombineRequestDemo[20020:93993] success 1
+2021-08-31 19:36:09.062164+0800 SQCombineRequestDemo[20020:93993] batchRequest success
+
 ```
 ## 4、组合使用
 
 ![image.png](https://upload-images.jianshu.io/upload_images/3150123-f24a0d8fe563b0e0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-
-
 图中b c d作为item添加到上面灰色串行网络中，e f g作为item添加到下面灰色串行网络中， 两个灰色又作为item加入到黄色的并行网络中。绿色跟黄色又作为item加入到蓝色串行网络中。
 
 ```
-- (SQCombineRequestItem *)createItemWithKey:(NSString *)key {
-    //创建网络请求
-    SQCombineRequestItem *item = [[SQCombineRequestItem alloc] init];
-    //将要开始
-    item.requestWillStart = ^(SQCombineRequestItem *requestItem) {
-        NSLog(@"will start    %@", key);
-    };
-    //获取网络请求参数
-    item.requestParam = ^NSDictionary *(NSDictionary *data){
-        NSLog(@"getParam   %@  %@",key, data);
-        return @{@"sid": @"28654780"};
-    };
-    //网络的url
-    item.url = @"https://api.apiopen.top/getSingleJoke";
-    //网络请求方式
-    item.method = SQCRNetMethodGet;
-    //成功回调
-    item.successBlock = ^(id data, SQCombineRequestResult *result) {
-        result.dataToNextRequest = @{key: key};
-        NSLog(@"success   %@", key);
-    };
-    //失败回调
-    item.failBlock = ^(id error) {
-        NSLog(@"fail    %@", key);
-    };
-    return item;
-}
-
-//组合使用代码
-- (void)testCombineRequest {
+    //组合使用代码
+    //创建请求a
     SQCombineRequestItem *a = [self createItemWithKey:@"a"];
-    
+    //创建bcd串行请求
     SQCombineChainRequest *bcd = [[SQCombineChainRequest alloc] init];
     for (NSString *key in @[@"b", @"c", @"d"]) {
+         //分别添加b c d网络添加到bcd串行网络中
         [bcd addRequest:[self createItemWithKey:key]];
     }
+    //b c d成功
     bcd.successBlock = ^(id data, SQCombineRequestResult *result) {
         NSLog(@"bcd success");
     };
-    
+    //创建efg串行网络
     SQCombineChainRequest *efg = [[SQCombineChainRequest alloc] init];
     for (NSString *key in @[@"e", @"f", @"g"]) {
+        //分别将e f g网络添加到efg串行网络中
         [efg addRequest:[self createItemWithKey:key]];
     }
+    //e f g 成功
     efg.successBlock = ^(id data, SQCombineRequestResult *result) {
         NSLog(@"efg success");
     };
-    
+    //创建bcd、efg并行的网络请求
     SQCombineBatchRequest *batch = [[SQCombineBatchRequest alloc] init];
+    //并行网络请求添加bcd efg
     [batch addRequests:@[bcd, efg]];
-    
+    //创建最终的串行网路请求
     self.chainRequest = [[SQCombineChainRequest alloc] init];
+    //串行网络请求添加请求a
     [self.chainRequest addRequest:a];
+    // 串行网络添加并行组合
     [self.chainRequest addRequest:batch];
+    //所有网络执行成功后的回调
     self.chainRequest.successBlock = ^(id data, SQCombineRequestResult *result) {
         NSLog(@"self.chainRequest success");
     };
-    
+    //开启网络调用
     [self.chainRequest start];
-    
-    
-}
 ```
 
 结果
@@ -298,4 +221,10 @@
 2021-08-31 16:58:57.669988+0800 SQCombineRequestDemo[59480:691163] success   g
 2021-08-31 16:58:57.670142+0800 SQCombineRequestDemo[59480:691163] efg success
 2021-08-31 16:58:57.670261+0800 SQCombineRequestDemo[59480:691163] self.chainRequest success
+```
+
+
+pod导入方式
+```
+pod 'SQCombineRequest', :git => "https://github.com/ytsunqiang/SQCombineRequest"
 ```
