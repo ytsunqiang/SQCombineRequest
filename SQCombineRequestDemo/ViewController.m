@@ -32,10 +32,10 @@ static NSUInteger flag = 0;
     //获取网络请求参数
     item.requestParam = ^NSDictionary *(NSDictionary *data){
         NSLog(@"getParam   %@  %@",key, data);
-        return @{@"sid": @"28654780"};
+        return @{@"q": @"你好"};
     };
     //网络的url
-    item.url = @"https://api.apiopen.top/getSingleJoke";
+    item.url = @"https://dict.youdao.com/jsonapi";
     //网络请求方式
     item.method = SQCRNetMethodGet;
     //成功回调
