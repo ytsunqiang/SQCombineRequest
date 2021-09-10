@@ -1,0 +1,6 @@
+framework module SQCombineRequest {
+  umbrella header "SQCombineRequest-umbrella.h"
+
+  export *
+  module * { export * }
+}
