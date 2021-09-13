@@ -7,8 +7,11 @@
 
 #import "SQCombineRequest.h"
 #import <os/lock.h>
-#import "AFNetworking.h"
+
+//#if __has_include("SQCRNetTool.h")
+#ifdef SQCOMBINEREQUESTNETTOOL
 #import "SQCRNetTool.h"
+#endif
 
 #define LOCK os_unfair_lock_lock(&_lock);
 #define UNLOCK os_unfair_lock_unlock(&_lock);
@@ -127,12 +130,16 @@ typedef void(^SQCRBlock)(SQCombineRequestResult* result);
 
 @implementation SQCombineRequestItem
 
+#ifdef SQCOMBINEREQUESTNETTOOL
+
 - (instancetype)init {
     if (self = [super init]) {
         self.netRequestTool = [[SQCRNetTool alloc] init];
     }
     return self;
 }
+#endif
+
 
 - (void)startRequest {
     
@@ -171,6 +178,11 @@ typedef void(^SQCRBlock)(SQCombineRequestResult* result);
             }
             [self fail: error];
         }];
+    } else {
+        NSString *str = [NSString stringWithFormat:@"%@ 的 netRequestTool需要自己设置并且实现SQCRNetProtocol协议方法",NSStringFromClass(self.class)];
+        NSAssert(0, str);
+        NSError *err = [NSError errorWithDomain:str code:-1 userInfo:nil];
+        [self fail: err];
     }
 }
 

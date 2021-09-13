@@ -7,5 +7,5 @@ target 'SQCombineRequestDemo' do
 
   # Pods for SQCombineRequestDemo
 
-  pod 'SQCombineRequest' 
+  pod 'SQCombineRequest'#, :path => '../'#, :subspecs => ['SQCombineRequestCombine']
 end
