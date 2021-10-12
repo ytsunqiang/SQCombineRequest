@@ -229,5 +229,5 @@ pod导入方式
 //自带网络请求工具、使用的是AFNetworking 4.0版本，如果冲突可以使用下面方式导入
 pod 'SQCombineRequest'
 //不带网络工具，不依赖AFNetworking，要自己设置SQCombineRequestItem的netRequestTool属性
-pod 'SQCombineRequest', :subspecs => ['SQCombineRequestCombine']
+pod 'SQCombineRequest/SQCombineRequestCombine'
 ```
